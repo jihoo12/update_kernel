@@ -1,0 +1,26 @@
+#!/bin/bash
+set -e
+export CFLAGS="-O2 -flto -pipe -march=native"
+export CC="ccache clang"
+export LLVM=1
+
+# 커널 소스 디렉토리로 이동
+cd /usr/src/linux
+git pull
+# 커널 설정 (필요한 경우)
+make menuconfig
+
+# 컴파일
+make -j$(nproc)/2
+
+# 모듈 설치
+sudo make modules_install
+
+# 커널 설치
+sudo make install
+
+# 초기 램디스크 생성 (데비안 방식)
+sudo update-initramfs -c -k $(make kernelrelease)
+
+# GRUB 설정 업데이트
+sudo update-grub
