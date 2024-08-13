@@ -7,20 +7,19 @@ export LLVM=1
 # 커널 소스 디렉토리로 이동
 cd /usr/src/linux
 git pull
+
 # 커널 설정 (필요한 경우)
 make menuconfig
 
 # 컴파일
-make -j$(nproc)/2
+make -j6 deb-pkg
 
-# 모듈 설치
-sudo make modules_install
-
-# 커널 설치
-sudo make install
+# 생성된 .deb 패키지 설치
+cd ..
+sudo dpkg -i linux-image-*.deb linux-headers-*.deb
 
 # 초기 램디스크 생성 (데비안 방식)
-sudo update-initramfs -c -k $(make kernelrelease)
+sudo update-initramfs -c -k $(make -C /usr/src/linux kernelrelease)
 
 # GRUB 설정 업데이트
 sudo update-grub
